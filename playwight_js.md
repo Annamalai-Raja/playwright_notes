@@ -253,4 +253,222 @@ test.only('debug this test', async ({ page }) => {
 
 ---
 
+Great — here's the **continuation** of anything missing from the original cheatsheet, including a few **advanced features**, **reporting**, **component testing**, and **VS Code tips**.
+
+---
+
+````markdown
+---
+
+## 📊 18. HTML Reporting
+
+```bash
+# Run with built-in HTML reporter
+npx playwright test --reporter=html
+
+# View the report
+npx playwright show-report
+````
+
+Custom reporter setup in `playwright.config.js`:
+
+```js
+reporter: [['html', { outputFolder: 'playwright-report', open: 'never' }]],
+```
+
+---
+
+## 🧩 19. Component Testing (Experimental)
+
+For React, Vue, or other frameworks:
+
+```bash
+npm install -D @playwright/experimental-ct-react
+```
+
+```js
+// Example: React component test
+import { test, expect } from '@playwright/experimental-ct-react';
+import Button from './Button';
+
+test('button renders correctly', async ({ mount }) => {
+  const component = await mount(<Button label="Click me" />);
+  await expect(component).toContainText('Click me');
+});
+```
+
+Docs: [https://playwright.dev/docs/component-testing](https://playwright.dev/docs/component-testing)
+
+---
+
+## 🧠 20. Advanced Test Annotations
+
+```js
+test.skip('not implemented yet', async () => {});
+test.fixme('known bug, to fix later');
+test.only('run only this test');
+test.describe('Admin Tests', () => { ... });
+```
+
+You can conditionally skip tests:
+
+```js
+test.skip(browserName === 'firefox', 'Not supported in Firefox');
+```
+
+---
+
+## 🧪 21. Fixtures & Custom Hooks
+
+```js
+// test-fixtures.js
+const base = require('@playwright/test');
+
+exports.test = base.test.extend({
+  adminPage: async ({ page }, use) => {
+    await page.goto('/admin');
+    await use(page);
+  },
+});
+```
+
+```js
+// admin.spec.js
+const { test } = require('../test-fixtures');
+
+test('dashboard loads', async ({ adminPage }) => {
+  // use adminPage directly
+});
+```
+
+---
+
+## 🧩 22. Plugin Ecosystem & Extras
+
+* **playwright/test-runner** – rich CLI & parallelism
+* **playwright/test-reporters** – Allure, HTML, JSON, JUnit
+* **@playwright/experimental-ct-**\* – for component testing
+
+---
+
+## 💡 23. Useful VS Code Extensions
+
+* [Playwright Test for VSCode](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright)
+* Features:
+
+  * Test runner UI
+  * Auto-detection of tests
+  * Debug with breakpoints
+
+---
+
+## 🔐 24. Auth Flow & Session Management
+
+Use storage snapshots to avoid repeated login:
+
+```js
+// Save state manually
+await page.context().storageState({ path: 'auth.json' });
+
+// Reuse
+test.use({ storageState: 'auth.json' });
+```
+
+---
+
+## 🧭 25. Test Generator UI
+
+```bash
+npx playwright codegen
+```
+
+This opens an interactive browser to record actions and auto-generate Playwright tests in JS, TS, Python, or C#.
+
+---
+
+## 🧼 26. Cleanup & Isolation Tips
+
+* Use `test.use()` for test-specific settings
+* Use `test.describe.serial()` to run tests in sequence
+* Always cleanup data (DB, cookies) if tests mutate state
+
+---
+
+## 🌐 27. Cross-Browser Testing
+
+Run tests in Chromium, Firefox, and WebKit:
+
+```bash
+npx playwright test --project=firefox
+```
+
+In config:
+
+```js
+projects: [
+  { name: 'chromium', use: { browserName: 'chromium' } },
+  { name: 'firefox', use: { browserName: 'firefox' } },
+  { name: 'webkit', use: { browserName: 'webkit' } },
+],
+```
+
+---
+
+## 🗂 28. Organizing Tests
+
+```
+/tests
+  ├── login.spec.js
+  ├── dashboard.spec.js
+/pages
+  ├── LoginPage.js
+  ├── DashboardPage.js
+/playwright.config.js
+```
+
+Keep tests isolated and readable. Use `test.describe` to group suites.
+
+---
+
+## 📦 29. Mocking APIs & Network Intercepts
+
+```js
+await page.route('**/api/data', route =>
+  route.fulfill({
+    status: 200,
+    body: JSON.stringify({ message: 'Mocked!' }),
+  })
+);
+```
+
+---
+
+## 📚 30. Recommended Learning Resources
+
+* [Playwright Official Docs](https://playwright.dev)
+* [Microsoft Learn Module](https://learn.microsoft.com/en-us/training/modules/build-with-playwright/)
+* [Automation Bro YouTube](https://www.youtube.com/c/AutomationBro)
+* [Playwright GitHub Repo](https://github.com/microsoft/playwright)
+* [TestingBestPractices](https://github.com/jorgebucaran/testing-best-practices)
+
+---
+
+## 🔁 31. Update Playwright
+
+```bash
+npx playwright install --force
+```
+
+---
+
+## 📎 Final Tips
+
+✅ Use `data-testid` for selectors
+✅ Debug tests with `PWDEBUG=1`
+✅ Integrate tests early in CI/CD
+✅ Write short, atomic, and self-contained tests
+✅ Leverage `tracing` + `reporters` to debug flakes
+
+---
+
 Happy testing!!
